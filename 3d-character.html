@@ -375,6 +375,22 @@
                     </div>
                 </div>
                 
+                <div class="control-section">
+                    <h3><i class="fas fa-cube"></i> 模型选择</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-model="simple">简单模型</button>
+                        <button class="preset-btn" data-model="external">外部模型</button>
+                        <button class="preset-btn" data-model="custom">自定义模型</button>
+                    </div>
+                    <div id="customModelInput" style="display: none; margin-top: 10px;">
+                        <input type="text" id="modelUrl" placeholder="输入GLTF/GLB模型URL" 
+                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid rgba(255,107,157,0.5); background: rgba(255,255,255,0.1); color: white;">
+                        <button class="control-btn" id="loadModelBtn" style="margin-top: 10px; width: 100%;">
+                            <i class="fas fa-download"></i> 加载模型
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="status-bar">
                     <div class="status-item">
                         <div class="status-value" id="fps">60</div>
@@ -445,8 +461,11 @@
             // 创建时钟
             clock = new THREE.Clock();
             
-            // 创建简单卡通人物（如果没有外部模型）
-            createSimpleCharacter();
+            // 尝试加载外部模型，如果失败则创建简单卡通人物
+            loadExternalModel().catch(error => {
+                console.log('外部模型加载失败，使用程序化模型:', error);
+                createSimpleCharacter();
+            });
             
             // 隐藏加载界面
             document.getElementById('loading').style.display = 'none';
@@ -462,6 +481,54 @@
             
             // 初始化性能监控
             initPerformanceMonitor();
+        }
+        
+        // 加载外部3D模型
+        async function loadExternalModel() {
+            return new Promise((resolve, reject) => {
+                // 这里可以替换成你的模型URL
+                const modelUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/LittlestTokyo.glb';
+                
+                const loader = new THREE.GLTFLoader();
+                
+                loader.load(
+                    modelUrl,
+                    function(gltf) {
+                        character = gltf.scene;
+                        
+                        // 调整模型大小和位置
+                        character.scale.set(0.02, 0.02, 0.02);
+                        character.position.y = -1;
+                        
+                        // 添加到场景
+                        scene.add(character);
+                        
+                        // 设置动画
+                        mixer = new THREE.AnimationMixer(character);
+                        if (gltf.animations && gltf.animations.length > 0) {
+                            const action = mixer.clipAction(gltf.animations[0]);
+                            action.play();
+                        }
+                        
+                        // 创建自定义动画
+                        createAnimations();
+                        
+                        // 隐藏加载界面
+                        document.getElementById('loading').style.display = 'none';
+                        
+                        resolve();
+                    },
+                    function(xhr) {
+                        // 加载进度
+                        const percent = (xhr.loaded / xhr.total * 100).toFixed(2);
+                        console.log(`模型加载进度: ${percent}%`);
+                    },
+                    function(error) {
+                        console.error('模型加载失败:', error);
+                        reject(error);
+                    }
+                );
+            });
         }
         
         // 创建简单卡通人物
@@ -729,11 +796,27 @@
             });
             
             // 预设按钮
-            document.querySelectorAll('.preset-btn').forEach(btn => {
+            document.querySelectorAll('.preset-btn[data-preset]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const preset = this.dataset.preset;
                     applyPreset(preset);
                 });
+            });
+            
+            // 模型选择按钮
+            document.querySelectorAll('.preset-btn[data-model]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modelType = this.dataset.model;
+                    switchModel(modelType);
+                });
+            });
+            
+            // 加载自定义模型按钮
+            document.getElementById('loadModelBtn').addEventListener('click', function() {
+                const modelUrl = document.getElementById('modelUrl').value;
+                if (modelUrl) {
+                    loadCustomModel(modelUrl);
+                }
             });
         }
         
@@ -783,6 +866,107 @@
             character.scale.x = character.scale.x;
             character.scale.y = character.scale.y;
             character.scale.z = character.scale.z;
+        }
+        
+        // 切换模型
+        function switchModel(modelType) {
+            // 显示/隐藏自定义模型输入
+            const customInput = document.getElementById('customModelInput');
+            if (modelType === 'custom') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+            }
+            
+            // 显示加载界面
+            document.getElementById('loading').style.display = 'block';
+            
+            // 移除现有模型
+            if (character) {
+                scene.remove(character);
+                character = null;
+            }
+            
+            // 根据选择加载模型
+            setTimeout(() => {
+                if (modelType === 'simple') {
+                    createSimpleCharacter();
+                    document.getElementById('loading').style.display = 'none';
+                } else if (modelType === 'external') {
+                    loadExternalModel().catch(error => {
+                        console.log('外部模型加载失败:', error);
+                        createSimpleCharacter();
+                    });
+                }
+                // custom模型需要用户输入URL
+            }, 100);
+        }
+        
+        // 加载自定义模型
+        function loadCustomModel(modelUrl) {
+            document.getElementById('loading').style.display = 'block';
+            
+            // 移除现有模型
+            if (character) {
+                scene.remove(character);
+                character = null;
+            }
+            
+            const loader = new THREE.GLTFLoader();
+            
+            loader.load(
+                modelUrl,
+                function(gltf) {
+                    character = gltf.scene;
+                    
+                    // 自动调整模型大小
+                    const box = new THREE.Box3().setFromObject(character);
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 2 / maxDim;
+                    
+                    character.scale.set(scale, scale, scale);
+                    character.position.y = -size.y * scale / 2;
+                    
+                    // 添加到场景
+                    scene.add(character);
+                    
+                    // 设置动画
+                    mixer = new THREE.AnimationMixer(character);
+                    if (gltf.animations && gltf.animations.length > 0) {
+                        const action = mixer.clipAction(gltf.animations[0]);
+                        action.play();
+                    }
+                    
+                    // 创建自定义动画
+                    createAnimations();
+                    
+                    // 隐藏加载界面
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    updateStatus('模型', '自定义模型加载成功');
+                },
+                function(xhr) {
+                    const percent = (xhr.loaded / xhr.total * 100).toFixed(2);
+                    document.getElementById('loading').innerHTML = `
+                        <div class="loading-spinner"></div>
+                        <p>加载模型: ${percent}%</p>
+                    `;
+                },
+                function(error) {
+                    console.error('自定义模型加载失败:', error);
+                    document.getElementById('loading').innerHTML = `
+                        <div style="color: #ff6b9d; font-size: 3rem; margin-bottom: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <p>模型加载失败</p>
+                        <p style="font-size: 0.9rem; color: #b8b8d1;">${error.message || '请检查URL是否正确'}</p>
+                        <button class="control-btn" onclick="switchModel('simple')" style="margin-top: 20px;">
+                            使用简单模型
+                        </button>
+                    `;
+                }
+            );
         }
         
         // 应用预设
