@@ -10,7 +10,7 @@ import webbrowser
 import os
 import sys
 
-PORT = 8899
+PORT = 8900
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):

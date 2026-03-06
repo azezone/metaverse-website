@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D卡通人物 - 元次元</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b9d, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #b8b8d1;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 30px;
+        }
+        
+        .character-container {
+            flex: 3;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #character3d {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .control-section {
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .control-section h3 {
+            color: #ff6b9d;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-section h3 i {
+            font-size: 1.3rem;
+        }
+        
+        .slider-group {
+            margin-bottom: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #b8b8d1;
+            font-size: 0.9rem;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff6b9d;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #ff6b9d, #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .preset-btn {
+            background: rgba(138, 43, 226, 0.2);
+            color: white;
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(138, 43, 226, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .status-bar {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-item {
+            text-align: center;
+        }
+        
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        
+        .status-label {
+            font-size: 0.8rem;
+            color: #b8b8d1;
+            margin-top: 5px;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 107, 157, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 107, 157, 0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 107, 157, 0.4);
+            transform: translateX(-5px);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 212, 255, 0.3);
+            border-top: 5px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .character-container {
+                height: 60vh;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .preset-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> 返回主页
+    </a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎮 3D卡通人物编辑器</h1>
+            <p>自定义你的二次元虚拟形象，实时预览3D效果</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="character-container">
+                <div id="character3d"></div>
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在加载3D模型...</p>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="control-section">
+                    <h3><i class="fas fa-tshirt"></i> 外观定制</h3>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>身体颜色</span>
+                            <span id="bodyColorValue">#FF6B9D</span>
+                        </div>
+                        <input type="range" min="0" max="360" value="340" class="slider" id="bodyColor">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>服装颜色</span>
+                            <span id="clothesColorValue">#8A2BE2</span>
+                        </div>
+                        <input type="range" min="0" max="360" value="270" class="slider" id="clothesColor">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>头发颜色</span>
+                            <span id="hairColorValue">#00D4FF</span>
+                        </div>
+                        <input type="range" min="0" max="360" value="180" class="slider" id="hairColor">
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-expand-alt"></i> 体型调整</h3>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>身高</span>
+                            <span id="heightValue">1.0</span>
+                        </div>
+                        <input type="range" min="0.5" max="1.5" value="1.0" step="0.1" class="slider" id="height">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>体型</span>
+                            <span id="sizeValue">1.0</span>
+                        </div>
+                        <input type="range" min="0.8" max="1.2" value="1.0" step="0.05" class="slider" id="size">
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-running"></i> 动作控制</h3>
+                    <div class="button-group">
+                        <button class="control-btn" id="idleBtn">
+                            <i class="fas fa-user"></i> 站立
+                        </button>
+                        <button class="control-btn" id="walkBtn">
+                            <i class="fas fa-walking"></i> 行走
+                        </button>
+                        <button class="control-btn" id="jumpBtn">
+                            <i class="fas fa-arrow-up"></i> 跳跃
+                        </button>
+                        <button class="control-btn" id="danceBtn">
+                            <i class="fas fa-music"></i> 舞蹈
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-palette"></i> 预设风格</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-preset="kawaii">可爱风格</button>
+                        <button class="preset-btn" data-preset="cool">酷炫风格</button>
+                        <button class="preset-btn" data-preset="fantasy">奇幻风格</button>
+                        <button class="preset-btn" data-preset="cyber">赛博风格</button>
+                        <button class="preset-btn" data-preset="default">默认风格</button>
+                        <button class="preset-btn" data-preset="random">随机风格</button>
+                    </div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="status-item">
+                        <div class="status-value" id="fps">60</div>
+                        <div class="status-label">FPS</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="polygons">1256</div>
+                        <div class="status-label">多边形</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="memory">45</div>
+                        <div class="status-label">内存(MB)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 3D场景变量
+        let scene, camera, renderer, controls;
+        let character, mixer, clock;
+        let currentAnimation = 'idle';
+        
+        // 颜色预设
+        const presets = {
+            default: { body: 340, clothes: 270, hair: 180 },
+            kawaii: { body: 350, clothes: 300, hair: 200 },
+            cool: { body: 220, clothes: 240, hair: 280 },
+            fantasy: { body: 30, clothes: 120, hair: 60 },
+            cyber: { body: 280, clothes: 200, hair: 320 }
+        };
+        
+        // 初始化3D场景
+        function init() {
+            // 创建场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f0c29);
+            
+            // 添加环境光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            // 添加方向光
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7);
+            scene.add(directionalLight);
+            
+            // 创建相机
+            camera = new THREE.PerspectiveCamera(45, 
+                window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+            
+            // 创建渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(document.getElementById('character3d').offsetWidth, 
+                            document.getElementById('character3d').offsetHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('character3d').appendChild(renderer.domElement);
+            
+            // 添加轨道控制
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
+            
+            // 创建时钟
+            clock = new THREE.Clock();
+            
+            // 创建简单卡通人物（如果没有外部模型）
+            createSimpleCharacter();
+            
+            // 隐藏加载界面
+            document.getElementById('loading').style.display = 'none';
+            
+            // 开始动画循环
+            animate();
+            
+            // 添加窗口大小调整监听
+            window.addEventListener('resize', onWindowResize);
+            
+            // 初始化UI事件
+            initUIEvents();
+            
+            // 初始化性能监控
+            initPerformanceMonitor();
+        }
+        
+        // 创建简单卡通人物
+        function createSimpleCharacter() {
+            character = new THREE.Group();
+            
+            // 身体（圆柱体）
+            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.4, 1.5, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xff6b9d,
+                shininess: 30
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.75;
+            character.add(body);
+            
+            // 头部（球体）
+            const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+            const headMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xff6b9d,
+                shininess: 30
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.8;
+            character.add(head);
+            
+            // 眼睛
+            const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(0.15, 1.85, 0.35);
+            character.add(leftEye);
+            
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(-0.15, 1.85, 0.35);
+            character.add(rightEye);
+            
+            // 瞳孔
+            const pupilGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+            const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+            
+            const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+            leftPupil.position.set(0.15, 1.85, 0.42);
+            character.add(leftPupil);
+            
+            const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+            rightPupil.position.set(-0.15, 1.85, 0.42);
+            character.add(rightPupil);
+            
+            // 头发
+            const hairGeometry = new THREE.ConeGeometry(0.5, 0.3, 8);
+            const hairMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x00d4ff,
+                shininess: 20
+            });
+            const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+            hair.position.y = 2.1;
+            character.add(hair);
+            
+            // 手臂
+            const armGeometry = new THREE.CylinderGeometry(0.1, 0.08, 0.8, 8);
+            const armMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xff6b9d,
+                shininess: 30
+            });
+            
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(0.7, 1.2, 0);
+            leftArm.rotation.z = Math.PI / 4;
+            character.add(leftArm);
+            
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(-0.7, 1.2, 0);
+            rightArm.rotation.z = -Math.PI / 4;
+            character.add(rightArm);
+            
+            // 腿
+            const legGeometry = new THREE.CylinderGeometry(0.12, 0.1, 0.9, 8);
+            const legMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x8a2be2,
+                shininess: 30
+            });
+            
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(0.25, 0, 0);
+            character.add(leftLeg);
+            
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(-0.25, 0, 0);
+            character.add(rightLeg);
+            
+            // 添加到场景
+            scene.add(character);
+            
+            // 创建动画混合器
+            mixer = new THREE.AnimationMixer(character);
+            
+            // 创建简单动画
+            createAnimations();
+        }
+        
+        // 创建动画
+        function createAnimations() {
+            // 站立动画
+            const idleAction = {
+                update: function(time) {
+                    character.rotation.y = Math.sin(time * 0.5) * 0.1;
+                    character.position.y = Math.sin(time * 2) * 0.02;
+                }
+            };
+            
+            // 行走动画
+            const walkAction = {
+                update: function(time) {
+                    character.rotation.y += 0.01;
+                    character.position.y = Math.sin(time * 5) * 0.05;
+                    
+                    // 手臂摆动
+                    character.children.forEach((child, index) => {
+                        if (child.name === 'leftArm') {
+                            child.rotation.z = Math.PI / 4 + Math.sin(time * 5) * 0.3;
+                        }
+                        if (child.name === 'rightArm') {
+                            child.rotation.z = -Math.PI / 4 + Math.sin(time * 5 + Math.PI) * 0.3;
+                        }
+                        if (child.name === 'leftLeg') {
+                            child.rotation.x = Math.sin(time * 5) * 0.3;
+                        }
+                        if (child.name === 'rightLeg') {
+                            child.rotation.x = Math.sin(time * 5 + Math.PI) * 0.3;
+                        }
+                    });
+                }
+            };
+            
+            // 跳跃动画
+            const jumpAction = {
+                update: function(time) {
+                    const jumpHeight = Math.sin(time * 3) * 0.5;
+                    character.position.y = jumpHeight > 0 ? jumpHeight : 0;
+                    
+                    if (jumpHeight > 0) {
+                        character.rotation.x = Math.sin(time * 6) * 0.1;
+                    }
+                }
+            };
+            
+            // 舞蹈动画
+            const danceAction = {
+                update: function(time) {
+                    character.rotation.y = time * 0.5;
+                    character.position.y = Math.sin(time * 3) * 0.1;
+                    
+                    // 手臂舞蹈动作
+                    character.children.forEach((child, index) => {
+                        if (child.name === 'leftArm') {
+                            child.rotation.z = Math.PI / 2 + Math.sin(time * 2) * 0.5;
+                        }
+                        if (child.name === 'rightArm') {
+                            child.rotation.z = -Math.PI / 2 + Math.sin(time * 2 + Math.PI) * 0.5;
+                        }
+                    });
+                }
+            };
+            
+            // 存储动画
+            window.animations = {
+                idle: idleAction,
+                walk: walkAction,
+                jump: jumpAction,
+                dance: danceAction
+            };
+        }
+        
+        // 切换动画
+        function setAnimation(animationName) {
+            currentAnimation = animationName;
+            updateStatus('当前动作', animationName);
+        }
+        
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+            
+            // 更新当前动画
+            if (window.animations && window.animations[currentAnimation]) {
+                window.animations[currentAnimation].update(time);
+            }
+            
+            // 更新轨道控制
+            controls.update();
+            
+            // 渲染场景
+            renderer.render(scene, camera);
+            
+            // 更新性能监控
+            updatePerformanceMonitor();
+        }
+        
+        // 窗口大小调整
+        function onWindowResize() {
+            camera.aspect = document.getElementById('character3d').offsetWidth / 
+                           document.getElementById('character3d').offsetHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(document.getElementById('character3d').offsetWidth, 
+                           document.getElementById('character3d').offsetHeight);
+        }
+        
+        // 初始化UI事件
+        function initUIEvents() {
+            // 颜色滑块
+            document.getElementById('bodyColor').addEventListener('input', function(e) {
+                const hue = e.target.value;
+                const color = `hsl(${hue}, 70%, 60%)`;
+                document.getElementById('bodyColorValue').textContent = color;
+                updateCharacterColor('body', hue);
+            });
+            
+            document.getElementById('clothesColor').addEventListener('input', function(e) {
+                const hue = e.target.value;
+                const color = `hsl(${hue}, 70%, 60%)`;
+                document.getElementById('clothesColorValue').textContent = color;
+                updateCharacterColor('clothes', hue);
+            });
+            
+            document.getElementById('hairColor').addEventListener('input', function(e) {
+                const hue = e.target.value;
+                const color = `hsl(${hue}, 70%, 60%)`;
+                document.getElementById('hairColorValue').textContent = color;
+                updateCharacterColor('hair', hue);
+            });
+            
+            // 体型滑块
+            document.getElementById('height').addEventListener('input', function(e) {
+                const value = parseFloat(e.target.value);
+                document.getElementById('heightValue').textContent = value.toFixed(1);
+                updateCharacterSize('height', value);
+            });
+            
+            document.getElementById('size').addEventListener('input', function(e) {
+                const value = parseFloat(e.target.value);
+                document.getElementById('sizeValue').textContent = value.toFixed(2);
+                updateCharacterSize('size', value);
+            });
+            
+            // 动作按钮
+            document.getElementById('idleBtn').addEventListener('click', function() {
+                setAnimation('idle');
+            });
+            
+            document.getElementById('walkBtn').addEventListener('click', function() {
+                setAnimation('walk');
+            });
+            
+            document.getElementById('jumpBtn').addEventListener('click', function() {
+                setAnimation('jump');
+            });
+            
+            document.getElementById('danceBtn').addEventListener('click', function() {
+                setAnimation('dance');
+            });
+            
+            // 预设按钮
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const preset = this.dataset.preset;
+                    applyPreset(preset);
+                });
+            });
+        }
+        
+        // 更新角色颜色
+        function updateCharacterColor(part, hue) {
+            if (!character) return;
+            
+            const color = new THREE.Color(`hsl(${hue}, 70%, 60%)`);
+            
+            character.children.forEach(child => {
+                if (part === 'body' && 
+                    (child.type === 'Mesh' && 
+                     (child.geometry.type === 'CylinderGeometry' || 
+                      child.geometry.type === 'SphereGeometry') &&
+                     child.material.color.getHex() !== 0x00d4ff && 
+                     child.material.color.getHex() !== 0x8a2be2)) {
+                    child.material.color = color;
+                    child.material.needsUpdate = true;
+                }
+                
+                if (part === 'clothes' && 
+                    child.geometry && child.geometry.type === 'CylinderGeometry' &&
+                    child.material.color.getHex() === 0x8a2be2) {
+                    child.material.color = color;
+                    child.material.needsUpdate = true;
+                }
+                
+                if (part === 'hair' && 
+                    child.geometry && child.geometry.type === 'ConeGeometry') {
+                    child.material.color = color;
+                    child.material.needsUpdate = true;
+                }
+            });
+        }
+        
+        // 更新角色大小
+        function updateCharacterSize(type, value) {
+            if (!character) return;
+            
+            if (type === 'height') {
+                character.scale.y = value;
+            } else if (type === 'size') {
+                character.scale.x = value;
+                character.scale.z = value;
+            }
+            
+            character.scale.x = character.scale.x;
+            character.scale.y = character.scale.y;
+            character.scale.z = character.scale.z;
+        }
+        
+        // 应用预设
+        function applyPreset(preset) {
+            if (preset === 'random') {
+                // 随机颜色
+                const bodyHue = Math.floor(Math.random() * 360);
+                const clothesHue = Math.floor(Math.random() * 360);
+                const hairHue = Math.floor(Math.random() * 360);
+                
+                document.getElementById('bodyColor').value = bodyHue;
+                document.getElementById('clothesColor').value = clothesHue;
+                document.getElementById('hairColor').value = hairHue;
+                
+                document.getElementById('bodyColorValue').textContent = `hsl(${bodyHue}, 70%, 60%)`;
+                document.getElementById('clothesColorValue').textContent = `hsl(${clothesHue}, 70%, 60%)`;
+                document.getElementById('hairColorValue').textContent = `hsl(${hairHue}, 70%, 60%)`;
+                
+                updateCharacterColor('body', bodyHue);
+                updateCharacterColor('clothes', clothesHue);
+                updateCharacterColor('hair', hairHue);
+                
+                // 随机动作
+                const animations = ['idle', 'walk', 'jump', 'dance'];
+                const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+                setAnimation(randomAnim);
+                
+                updateStatus('预设', '随机风格');
+            } else if (presets[preset]) {
+                const presetData = presets[preset];
+                
+                document.getElementById('bodyColor').value = presetData.body;
+                document.getElementById('clothesColor').value = presetData.clothes;
+                document.getElementById('hairColor').value = presetData.hair;
+                
+                document.getElementById('bodyColorValue').textContent = `hsl(${presetData.body}, 70%, 60%)`;
+                document.getElementById('clothesColorValue').textContent = `hsl(${presetData.clothes}, 70%, 60%)`;
+                document.getElementById('hairColorValue').textContent = `hsl(${presetData.hair}, 70%, 60%)`;
+                
+                updateCharacterColor('body', presetData.body);
+                updateCharacterColor('clothes', presetData.clothes);
+                updateCharacterColor('hair', presetData.hair);
+                
+                updateStatus('预设', preset);
+            }
+        }
+        
+        // 初始化性能监控
+        function initPerformanceMonitor() {
+            // 初始化FPS计数器
+            let frameCount = 0;
+            let lastTime = performance.now();
+            
+            function updateFPS() {
+                frameCount++;
+                const currentTime = performance.now();
+                const delta = currentTime - lastTime;
+                
+                if (delta >= 1000) {
+                    const fps = Math.round((frameCount * 1000) / delta);
+                    document.getElementById('fps').textContent = fps;
+                    frameCount = 0;
+                    lastTime = currentTime;
+                }
+                
+                requestAnimationFrame(updateFPS);
+            }
+            
+            updateFPS();
+            
+            // 更新多边形计数
+            let polygonCount = 0;
+            scene.traverse(function(object) {
+                if (object.isMesh) {
+                    const geometry = object.geometry;
+                    if (geometry.index) {
+                        polygonCount += geometry.index.count / 3;
+                    } else {
+                        polygonCount += geometry.attributes.position.count / 3;
+                    }
+                }
+            });
+            
+            document.getElementById('polygons').textContent = polygonCount;
+            
+            // 模拟内存使用
+            setInterval(() => {
+                const memory = 40 + Math.random() * 10;
+                document.getElementById('memory').textContent = Math.round(memory);
+            }, 2000);
+        }
+        
+        // 更新性能监控
+        function updatePerformanceMonitor() {
+            // 这里可以添加实时性能数据更新
+        }
+        
+        // 更新状态显示
+        function updateStatus(type, value) {
+            console.log(`${type}: ${value}`);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // 防止右键菜单
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.id === 'character3d' || e.target.parentNode.id === 'character3d') {
+                e.preventDefault();
+            }
+        });
+        
+        // 键盘控制
+        document.addEventListener('keydown', function(e) {
+            if (!character) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    character.position.z -= 0.1;
+                    break;
+                case 'ArrowDown':
+                    character.position.z += 0.1;
+                    break;
+                case 'ArrowLeft':
+                    character.position.x -= 0.1;
+                    break;
+                case 'ArrowRight':
+                    character.position.x += 0.1;
+                    break;
+                case ' ':
+                    setAnimation('jump');
+                    break;
+                case 'r':
+                case 'R':
+                    applyPreset('random');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
