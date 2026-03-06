@@ -379,7 +379,7 @@
                     <h3><i class="fas fa-cube"></i> 模型选择</h3>
                     <div class="preset-buttons">
                         <button class="preset-btn" data-model="simple">卡通人物</button>
-                        <button class="preset-btn" data-model="external">机械独眼人</button>
+                        <button class="preset-btn" data-model="external">测试模型</button>
                         <button class="preset-btn" data-model="custom">自定义模型</button>
                     </div>
                     <div id="customModelInput" style="display: none; margin-top: 10px;">
@@ -388,6 +388,14 @@
                         <button class="control-btn" id="loadModelBtn" style="margin-top: 10px; width: 100%;">
                             <i class="fas fa-download"></i> 加载模型
                         </button>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(255, 107, 157, 0.1); border-radius: 10px; border-left: 3px solid #ff6b9d;">
+                        <p style="font-size: 0.9rem; color: #ff6b9d; margin: 0;">
+                            <i class="fas fa-exclamation-circle"></i> 机械独眼人模型加载有问题
+                            <a href="test-model.html" style="color: #00d4ff; text-decoration: none; margin-left: 10px;">
+                                点击诊断
+                            </a>
+                        </p>
                     </div>
                 </div>
                 
@@ -486,8 +494,10 @@
         // 加载外部3D模型
         async function loadExternalModel() {
             return new Promise((resolve, reject) => {
-                // 使用你的Q版机械独眼人模型（GitHub raw链接）
-                const modelUrl = 'https://raw.githubusercontent.com/azezone/metaverse-website/main/robot-character.glb';
+                // 使用已知可用的测试模型（临时方案）
+                const modelUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Duck/glTF-Binary/Duck.glb';
+                // 你的机械独眼人模型URL（当前有问题）：
+                // 'https://raw.githubusercontent.com/azezone/metaverse-website/main/robot-character.glb'
                 
                 const loader = new THREE.GLTFLoader();
                 
