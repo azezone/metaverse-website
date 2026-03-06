@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元次元 - 3D二次元虚拟社交平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6b9d;
+            --primary-dark: #ff4d8d;
+            --secondary: #8a2be2;
+            --accent: #00d4ff;
+            --dark: #1a1a2e;
+            --light: #f8f9ff;
+            --neon: #00ff9d;
+            --shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--light);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 霓虹效果 */
+        .neon-text {
+            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent);
+        }
+        
+        .neon-border {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 10px var(--accent), inset 0 0 10px var(--accent);
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 107, 157, 0.3);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--light);
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .cta-button {
+            background: var(--gradient);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        
+        /* 英雄区域 */
+        .hero {
+            padding: 180px 0 100px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(138, 43, 226, 0.2), transparent 50%),
+                      radial-gradient(circle at 70% 70%, rgba(255, 107, 157, 0.2), transparent 50%);
+            z-index: -1;
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .hero-text h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .hero-text p {
+            font-size: 1.3rem;
+            color: #b8b8d1;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b8b8d1;
+        }
+        
+        .hero-visual {
+            position: relative;
+        }
+        
+        .character-3d {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(138, 43, 226, 0.1));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .character-3d::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--accent), transparent);
+            animation: rotate 10s linear infinite;
+        }
+        
+        .character-3d::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            background: var(--dark);
+            border-radius: 18px;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .character-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .character-content i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        /* 功能区域 */
+        .features {
+            padding: 100px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .section-title p {
+            color: #b8b8d1;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* 产品展示 */
+        .products {
+            padding: 100px 0;
+        }
+        
+        .product-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        .product-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-image::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .product-content {
+            padding: 30px;
+        }
+        
+        .product-content h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* 社区展示 */
+        .community {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .community-item {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+        
+        .community-item:hover {
+            background: rgba(255, 107, 157, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .community-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        /* 页脚 */
+        .footer {
+            background: rgba(26, 26, 46, 0.95);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(255, 107, 157, 0.3);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #b8b8d1;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 107, 157, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .social-links a:hover {
+            background: var(--gradient);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #8a8aa3;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 粒子背景 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-ghost"></i>
+                元次元
+            </a>
+            <div class="nav-links">
+                <a href="#features">核心特色</a>
+                <a href="#products">虚拟世界</a>
+                <a href="#community">创作者社区</a>
+                <a href="#about">关于我们</a>
+                <a href="#contact">加入我们</a>
+            </div>
+            <a href="#contact" class="cta-button">进入元次元 <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1>欢迎来到<br>3D二次元虚拟世界</h1>
+                <p>在元次元，你可以创建专属的二次元虚拟形象，探索梦幻般的3D世界，与全球同好实时互动，开启全新的社交体验。</p>
+                <a href="#contact" class="cta-button">创建你的虚拟形象 <i class="fas fa-user-astronaut"></i></a>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">50万+</span>
+                        <span class="stat-label">活跃用户</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">虚拟场景</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">在线活动</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="character-3d">
+                    <div class="character-content">
+                        <i class="fas fa-robot"></i>
+                        <h3>你的二次元分身</h3>
+                        <p>自定义外观、服装、表情</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心特色 -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>核心特色</h2>
+                <p>体验前所未有的二次元3D社交</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <h3>虚拟形象系统</h3>
+                    <p>高度自定义的二次元角色创建，支持实时表情捕捉和动作同步</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe-asia"></i>
+                    </div>
+                    <h3>开放世界探索</h3>
+                    <p>探索各种主题的3D虚拟场景：动漫校园、奇幻森林、未来都市</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>实时社交互动</h3>
+                    <p>语音聊天、表情互动、虚拟活动，与全球同好建立真实连接</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>创作者经济</h3>
+                    <p>创作并出售虚拟服装、道具、场景，构建你的数字资产</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 虚拟世界 -->
+    <section id="products" class="products">
+        <div class="container">
+            <div class="section-title">
+                <h2>虚拟世界</h2>
+                <p>探索多元的二次元空间</p>
+            </div>
+            <div class="product-showcase">
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <div class="product-content">
+                        <h3>动漫学园</h3>
+                        <p>经典的日式校园场景，教室、天台、社团活动室，重温青春回忆</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 实时课堂互动</li>
+                            <li><i class="fas fa-check"></i> 社团活动系统</li>
+                            <li><i class="fas fa-check"></i> 校园祭典活动</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <div class="product-content">
+                        <h3>奇幻森林</h3>
+                        <p>魔法与冒险的世界，精灵村落、古代遗迹、神秘洞穴等待探索</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 探索解谜玩法</li>
+                            <li><i class="fas fa-check"></i> 魔法技能系统</li>
+                            <li><i class="fas fa-check"></i> 团队冒险任务</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-city"></i>
+                    </div>
+                    <div class="product-content">
+                        <h3>赛博都市</h3>
+                        <p>未来科技感的都市景观，霓虹街道、虚拟商场、太空港口</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 虚拟购物体验</li>
+                            <li><i class="fas fa-check"></i> 科技互动装置</li>
+                            <li><i class="fas fa-check"></i> 电竞观赛场馆</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 创作者社区 -->
+    <section id="community" class="community">
+        <div class="container">
+            <div class="section-title">
+                <h2>创作者社区</h2>
+                <p>让创意在虚拟世界绽放</p>
+            </div>
+            <div class="community-grid">
+                <div class="community-item">
+                    <div class="community-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <h4>服装设计</h4>
+                    <p>创作并出售虚拟服装</p>
+                </div>
+                <div class="community-item">
+                    <div class="community-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h4>场景建造</h4>
+                    <p>设计独特的虚拟空间</p>
+                </div>
+                <div class="community-item">
+                    <div class="community-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h4>游戏开发</h4>
+                    <p>创建互动小游戏</p>
+                </div>
+                <div class="community-item">
+                    <div class="community-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h4>虚拟演出</h4>
+                    <p>举办线上演唱会</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>元次元</h3>
+                    <p>连接现实与虚拟的二次元3D社交平台，让每一次相遇都充满惊喜。</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-weibo"></i></a>
+                        <a href="#"><i class="fab fa-bilibili"></i></a>
+                        <a href="#"><i class="fab fa-discord"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="#features">核心特色</a></li>
+                        <li><a href="#products">虚拟世界</a></li>
+                        <li><a href="#community">创作者社区</a></li>
+                        <li><a href="#about">关于我们</a></li>
+                        <li><a href="#contact">加入我们</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <div class="contact-info">
+                        <p><i class="fas fa-envelope"></i> contact@metaverse.acg</p>
+                        <p><i class="fas fa-phone"></i> 400-ACG-8888</p>
+                        <p><i class="fas fa-map-marker-alt"></i> 上海市徐汇区</p>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>立即体验</h3>
+                    <p>下载客户端或直接在浏览器中体验</p>
+                    <a href="#contact" class="cta-button" style="margin-top: 15px; display: inline-block;">
+                        开始体验 <i class="fas fa-play"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2026 元次元科技有限公司. 保留所有权利. | 沪ICP备2026123456号</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 创建粒子背景
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // 随机位置
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                
+                // 随机大小
+                const size = Math.random() * 3 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // 随机颜色
+                const colors = ['#ff6b9d', '#8a2be2', '#00d4ff', '#00ff9d'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 随机动画延迟
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(26, 26, 46, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(26, 26, 46, 0.95)';
+            }
+        });
+        
+        // 初始化粒子
+        document.addEventListener('DOMContentLoaded', createParticles);
+        
+        // 鼠标移动效果
+        document.addEventListener('mousemove', function(e) {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            document.querySelectorAll('.feature-card, .product-card').forEach(card => {
+                card.style.transform = `perspective(1000px) rotateY(${x * 5 - 2.5}deg) rotateX(${y * -5 + 2.5}deg)`;
+            });
+        });
+    </script>
+</body>
+</html>
